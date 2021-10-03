@@ -1,0 +1,147 @@
+service: star-wars-serverless
+#app: your-app-name
+org: edwardefa
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: 20201221
+  stage: dev
+  region: us-east-1
+  stackName: star-wars-stack
+  environment:
+    DynamoTableName: ${self:custom.swapiTableName}
+    swapiApi: https://swapi.py4e.com/api
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: 
+        Fn::GetAtt:
+          - swapiTable
+          - Arn
+
+plugins:
+  - serverless-openapi-documentation
+  - serverless-offline
+
+custom:
+  swapiTableName: swapiTable
+  documentation: ${file(serverless.doc.yml):documentation}
+
+functions:
+  peopleGetByIdFuncion:
+    name: people-get-by-id
+    timeout: 6 
+    handler: src/lambdas/people/get-by-id.main
+    events:
+      - http:
+          path: /people/{id}
+          method: get
+          cors: true
+          # authorizer: aws_iam
+          documentation:
+            summary: "Obtener persona usando el id de la persona (dynamoDb)"
+            description: "Obtener una persona desde dynamoDb usando el id de la persona"
+            requestBody:
+              description: "pathParams peopleId"
+            requestModels:
+              application/json: getPeopleResponse
+            pathParams:
+              - name: peopleId
+                description: Id de la persona
+                schema:
+                  type: string
+            methodResponses:
+              - statusCode: 200
+                responseBody:
+                  description: "Con resultado"
+                responseModels:
+                  application/json: "getPeopleResponse"
+
+  swapiPeopleGetByIdFuncion:
+    name: swapi-people-get-by-id
+    timeout: 6 
+    handler: src/lambdas/people_swapi/get-by-id.main
+    events:
+      - http:
+          path: /swapi/people/{id}
+          method: get
+          cors: true
+          # authorizer: aws_iam
+          documentation:
+            summary: "Obtener persona usando el id de la persona (swapi)"
+            description: "Obtener una persona desde el api swapi usando el id de la persona"
+            requestBody:
+              description: "pathParams peopleId"
+            requestModels:
+              application/json: getPeopleResponse
+            pathParams:
+              - name: peopleId
+                description: Id de la persona
+                schema:
+                  type: string
+            methodResponses:
+              - statusCode: 200
+                responseBody:
+                  description: "Con resultado"
+                responseModels:
+                  application/json: "getPeopleResponse"
+
+  peoplePostFuncion:
+    name: people-post
+    timeout: 6 
+    handler: src/lambdas/people/post.main
+    events:
+      - http:
+          path: /people
+          method: post
+          cors: true
+          # authorizer: aws_iam
+          documentation:
+            summary: "Registrar una persona en la BD"
+            description: "Agrega una persona a la BD Dynamo usando el peopleId como parametro"
+            requestBody:
+              description: "Body peopleId"
+            requestModels:
+              application/json: "addPeopleResponse"
+            body:
+              - name: peopleId
+                description: El id de la persona
+                schema:
+                  type: string
+            methodResponses:
+              - statusCode: 200
+                responseBody:
+                  description: "Persona agregada"
+                responseModels:
+                  application/json: "addPeopleResponse"
+
+resources:
+
+  - Resources:
+      swapiTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: ${self:custom.swapiTableName}
+          AttributeDefinitions:
+            - AttributeName: typeData
+              AttributeType: S
+            - AttributeName: id
+              AttributeType: S
+          KeySchema:
+            - AttributeName: typeData
+              KeyType: HASH
+            - AttributeName: id
+              KeyType: "RANGE"
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+
+  

@@ -1,0 +1,93 @@
+openapi: 3.0.0
+components:
+  schemas:
+    getPeopleResponse:
+      type: object
+      properties:
+        anoNacimiento:
+          type: string
+        colorOjo:
+          type: string
+        peliculas:
+          type: array
+          items:
+            type: string
+        genero:
+          type: string
+        colorCabello:
+          type: string
+        altura:
+          type: string
+        mundoNatal:
+          type: string
+        masa:
+          type: string
+        nombre:
+          type: string
+        colorPiel:
+          type: string
+        creado:
+          type: string
+        editado:
+          type: string
+        especies:
+          type: array
+          items:
+            type: string
+        naves:
+          type: array
+          items:
+            type: string
+        url:
+          type: string
+        vehiculos:
+          type: array
+          items:
+            type: string
+    addPeopleResponse:
+      type: string
+  securitySchemes: {}
+info:
+  title: Swapi API
+  description: >-
+    Esta api permite consultar personas de starwars usando como referencia el
+    API Swapi. Permite consultar tanto a la base de datos SWAPI como a la base
+    de datos dynamo y crear una persona en caso de que no exista
+  version: '1'
+paths:
+  '//people/{id}':
+    get:
+      operationId: peopleGetByIdFuncion
+      summary: Obtener persona usando el id de la persona (dynamoDb)
+      description: Obtener una persona desde dynamoDb usando el id de la persona
+      responses:
+        '200':
+          description: Con resultado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getPeopleResponse'
+  '//swapi/people/{id}':
+    get:
+      operationId: swapiPeopleGetByIdFuncion
+      summary: Obtener persona usando el id de la persona (swapi)
+      description: Obtener una persona desde el api swapi usando el id de la persona
+      responses:
+        '200':
+          description: Con resultado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getPeopleResponse'
+  //people:
+    post:
+      operationId: peoplePostFuncion
+      summary: Registrar una persona en la BD
+      description: Agrega una persona a la BD Dynamo usando el peopleId como parametro
+      responses:
+        '200':
+          description: Persona agregada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/addPeopleResponse'

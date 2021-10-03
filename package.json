@@ -1,0 +1,25 @@
+{
+  "name": "swapi",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Edward Forero",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.823.0",
+    "axios": "^0.21.1",
+    "sinon": "^9.2.3"
+  },
+  "devDependencies": {
+    "eslint": "^7.17.0",
+    "jest": "^26.6.3",
+    "jest-extended": "^0.11.5",
+    "prettier": "^2.2.1",
+    "serverless-offline": "^6.8.0",
+    "serverless-openapi-documentation": "^0.4.0"
+  },
+  "scripts": {
+    "dev": "sls offline",
+    "test": "jest",
+    "deploy": "sls deploy"
+  }
+}
